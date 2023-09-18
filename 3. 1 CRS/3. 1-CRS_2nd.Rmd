@@ -1,0 +1,742 @@
+---
+title: "Analyzed PBMC transcriptomes in patients with single versus recurrent CRS episodes"
+author: "Chentao LI"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Data loading
+## import packages
+```{r,message=F,warning=F}
+gc()
+memory.limit(10240000000)
+library(Seurat)
+library(SeuratObject)
+library(tidyverse)
+library(ggplot2)
+library(openxlsx)
+```
+
+# Data loading
+### import packages
+```{r,message=F,warning=F}
+gc()
+memory.limit(10240000000)
+library(Seurat)
+library(SeuratObject)
+library(tidyverse)
+library(harmony)
+library(SCENIC)
+library(ggplot2)
+```
+
+### Read the original files. 
+```{r}
+# Import data
+setwd("D:/OneDrive - International Campus, Zhejiang University/Projects/CRS/Data/Patient1_ZJG")
+p1_s1 <- Read10X(data.dir = "GEX1_filtered_feature_bc_matrix")
+p1_s1 <- CreateSeuratObject(counts = p1_s1, min.cells = 3, min.features = 500)
+p1_s2 <- Read10X(data.dir = "GEX2_filtered_feature_bc_matrix")
+p1_s2 <- CreateSeuratObject(counts = p1_s2, min.cells = 3, min.features = 500)
+p1_s3 <- Read10X(data.dir = "GEX3_filtered_feature_bc_matrix")
+p1_s3 <- CreateSeuratObject(counts = p1_s3, min.cells = 3, min.features = 500)
+p1_s4 <- Read10X(data.dir = "GEX4_filtered_feature_bc_matrix")
+p1_s4 <- CreateSeuratObject(counts = p1_s4, min.cells = 3, min.features = 500)
+p1_s5 <- Read10X(data.dir = "GEX5_filtered_feature_bc_matrix")
+p1_s5 <- CreateSeuratObject(counts = p1_s5, min.cells = 3, min.features = 500)
+p1_s6 <- Read10X(data.dir = "GEX6_filtered_feature_bc_matrix")
+p1_s6 <- CreateSeuratObject(counts = p1_s6, min.cells = 3, min.features = 500)
+p1_s7 <- Read10X(data.dir = "GEX7_filtered_feature_bc_matrix")
+p1_s7 <- CreateSeuratObject(counts = p1_s7, min.cells = 3, min.features = 500)
+
+setwd("D:/OneDrive - International Campus, Zhejiang University/Projects/CRS/Data/Patient2_DYH")
+p2_s1 <- Read10X(data.dir = "GEX1_filtered_feature_bc_matrix")
+p2_s1 <- CreateSeuratObject(counts = p2_s1, min.cells = 3, min.features = 500)
+p2_s2 <- Read10X(data.dir = "GEX2_filtered_feature_bc_matrix")
+p2_s2 <- CreateSeuratObject(counts = p2_s2, min.cells = 3, min.features = 500)
+p2_s3 <- Read10X(data.dir = "GEX3_filtered_feature_bc_matrix")
+p2_s3 <- CreateSeuratObject(counts = p2_s3, min.cells = 3, min.features = 500)
+p2_s4 <- Read10X(data.dir = "GEX4_filtered_feature_bc_matrix")
+p2_s4 <- CreateSeuratObject(counts = p2_s4, min.cells = 3, min.features = 500)
+p2_s5 <- Read10X(data.dir = "GEX5_filtered_feature_bc_matrix")
+p2_s5 <- CreateSeuratObject(counts = p2_s5, min.cells = 3, min.features = 500)
+p2_s6 <- Read10X(data.dir = "GEX6_filtered_feature_bc_matrix")
+p2_s6 <- CreateSeuratObject(counts = p2_s6, min.cells = 3, min.features = 500)
+p2_s7 <- Read10X(data.dir = "GEX7_filtered_feature_bc_matrix")
+p2_s7 <- CreateSeuratObject(counts = p2_s7, min.cells = 3, min.features = 500)
+
+setwd("D:/OneDrive - International Campus, Zhejiang University/Projects/CRS/Data/Patient3_XJM")
+p3_s1 <- Read10X(data.dir = "GEX1_filtered_feature_bc_matrix")
+p3_s1 <- CreateSeuratObject(counts = p3_s1, min.cells = 3, min.features = 500)
+p3_s2 <- Read10X(data.dir = "GEX2_filtered_feature_bc_matrix")
+p3_s2 <- CreateSeuratObject(counts = p3_s2, min.cells = 3, min.features = 500)
+p3_s3 <- Read10X(data.dir = "GEX3_filtered_feature_bc_matrix")
+p3_s3 <- CreateSeuratObject(counts = p3_s3, min.cells = 3, min.features = 500)
+p3_s4 <- Read10X(data.dir = "GEX4_filtered_feature_bc_matrix")
+p3_s4 <- CreateSeuratObject(counts = p3_s4, min.cells = 3, min.features = 500)
+p3_s5 <- Read10X(data.dir = "GEX5_filtered_feature_bc_matrix")
+p3_s5 <- CreateSeuratObject(counts = p3_s5, min.cells = 3, min.features = 500)
+p3_s6 <- Read10X(data.dir = "GEX6_filtered_feature_bc_matrix")
+p3_s6 <- CreateSeuratObject(counts = p3_s6, min.cells = 3, min.features = 500)
+p3_s7 <- Read10X(data.dir = "GEX7_filtered_feature_bc_matrix")
+p3_s7 <- CreateSeuratObject(counts = p3_s7, min.cells = 3, min.features = 500)
+p3_s8 <- Read10X(data.dir = "GEX8_filtered_feature_bc_matrix")
+p3_s8 <- CreateSeuratObject(counts = p3_s8, min.cells = 3, min.features = 500)
+
+setwd("D:/OneDrive - International Campus, Zhejiang University/Projects/CRS/Data/Patient4_FHJ")
+p4_s1 <- Read10X(data.dir = "GEX1_filtered_feature_bc_matrix")
+p4_s1 <- CreateSeuratObject(counts = p4_s1, min.cells = 3, min.features = 500)
+p4_s2 <- Read10X(data.dir = "GEX2_filtered_feature_bc_matrix")
+p4_s2 <- CreateSeuratObject(counts = p4_s2, min.cells = 3, min.features = 500)
+p4_s3 <- Read10X(data.dir = "GEX3_filtered_feature_bc_matrix")
+p4_s3 <- CreateSeuratObject(counts = p4_s3, min.cells = 3, min.features = 500)
+p4_s4 <- Read10X(data.dir = "GEX4_filtered_feature_bc_matrix")
+p4_s4 <- CreateSeuratObject(counts = p4_s4, min.cells = 3, min.features = 500)
+p4_s5 <- Read10X(data.dir = "GEX5_filtered_feature_bc_matrix")
+p4_s5 <- CreateSeuratObject(counts = p4_s5, min.cells = 3, min.features = 500)
+p4_s6 <- Read10X(data.dir = "GEX6_filtered_feature_bc_matrix")
+p4_s6 <- CreateSeuratObject(counts = p4_s6, min.cells = 3, min.features = 500)
+p4_s7 <- Read10X(data.dir = "GEX7_filtered_feature_bc_matrix")
+p4_s7 <- CreateSeuratObject(counts = p4_s7, min.cells = 3, min.features = 500)
+p4_s8 <- Read10X(data.dir = "GEX8_filtered_feature_bc_matrix")
+p4_s8 <- CreateSeuratObject(counts = p4_s8, min.cells = 3, min.features = 500)
+p4_s9 <- Read10X(data.dir = "GEX9_filtered_feature_bc_matrix")
+p4_s9 <- CreateSeuratObject(counts = p4_s9, min.cells = 3, min.features = 500)
+```
+
+### Set sample names
+```{r}
+p1_s1$sample_name <- "p1_s1"
+p1_s2$sample_name <- "p1_s2"
+p1_s3$sample_name <- "p1_s3"
+p1_s4$sample_name <- "p1_s4"
+p1_s5$sample_name <- "p1_s5"
+p1_s6$sample_name <- "p1_s6"
+p1_s7$sample_name <- "p1_s7"
+p1_s1$Patient <- "Patient1"
+p1_s2$Patient <- "Patient1"
+p1_s3$Patient <- "Patient1"
+p1_s4$Patient <- "Patient1"
+p1_s5$Patient <- "Patient1"
+p1_s6$Patient <- "Patient1"
+p1_s7$Patient <- "Patient1"
+p1_s1$CAR <- "FC"
+p1_s2$CAR <- "Non-CART"
+p1_s3$CAR <- "Non-CART"
+p1_s4$CAR <- "Non-CART"
+p1_s5$CAR <- "CART"
+p1_s6$CAR <- "CART"
+p1_s7$CAR <- "CART"
+p1_s1$TIME <- "FCb"
+p1_s2$TIME <- "CRSb"
+p1_s3$TIME <- "1stCRSp"
+p1_s4$TIME <- "CRSr"
+p1_s5$TIME <- "CRSb"
+p1_s6$TIME <- "1stCRSp"
+p1_s7$TIME <- "CRSr"
+
+p2_s1$Patient <- "Patient2"
+p2_s2$Patient <- "Patient2"
+p2_s3$Patient <- "Patient2"
+p2_s4$Patient <- "Patient2"
+p2_s5$Patient <- "Patient2"
+p2_s6$Patient <- "Patient2"
+p2_s7$Patient <- "Patient2"
+p2_s1$sample_name <- "p2_s1"
+p2_s2$sample_name <- "p2_s2"
+p2_s3$sample_name <- "p2_s3"
+p2_s4$sample_name <- "p2_s4"
+p2_s5$sample_name <- "p2_s5"
+p2_s6$sample_name <- "p2_s6"
+p2_s7$sample_name <- "p2_s7"
+p2_s1$CAR <- "FC"
+p2_s2$CAR <- "Non-CART"
+p2_s3$CAR <- "Non-CART"
+p2_s4$CAR <- "Non-CART"
+p2_s5$CAR <- "CART"
+p2_s6$CAR <- "CART"
+p2_s7$CAR <- "CART"
+p2_s1$TIME <- "FCb"
+p2_s2$TIME <- "CRSb"
+p2_s3$TIME <- "1stCRSp"
+p2_s4$TIME <- "CRSr"
+p2_s5$TIME <- "CRSb"
+p2_s6$TIME <- "1stCRSp"
+p2_s7$TIME <- "CRSr"
+
+p3_s1$Patient <- "Patient3"
+p3_s2$Patient <- "Patient3"
+p3_s3$Patient <- "Patient3"
+p3_s4$Patient <- "Patient3"
+p3_s5$Patient <- "Patient3"
+p3_s6$Patient <- "Patient3"
+p3_s7$Patient <- "Patient3"
+p3_s8$Patient <- "Patient3"
+p3_s1$sample_name <- "p3_s1"
+p3_s2$sample_name <- "p3_s2"
+p3_s3$sample_name <- "p3_s3"
+p3_s4$sample_name <- "p3_s4"
+p3_s5$sample_name <- "p3_s5"
+p3_s6$sample_name <- "p3_s6"
+p3_s7$sample_name <- "p3_s7"
+p3_s8$sample_name <- "p3_s8"
+p3_s1$CAR <- "FC"
+p3_s2$CAR <- "Non-CART"
+p3_s3$CAR <- "Non-CART"
+p3_s4$CAR <- "Non-CART"
+p3_s5$CAR <- "CART"
+p3_s6$CAR <- "CART"
+p3_s7$CAR <- "CART"
+p3_s8$CAR <- "Non-CART"
+p3_s1$TIME <- "FCb"
+p3_s2$TIME <- "CRSb"
+p3_s3$TIME <- "1stCRSp"
+p3_s4$TIME <- "CRSr"
+p3_s5$TIME <- "CRSb"
+p3_s6$TIME <- "1stCRSp"
+p3_s7$TIME <- "CRSr"
+p3_s8$TIME <- "2ndCRSp"
+
+p4_s1$Patient <- "Patient4"
+p4_s2$Patient <- "Patient4"
+p4_s3$Patient <- "Patient4"
+p4_s4$Patient <- "Patient4"
+p4_s5$Patient <- "Patient4"
+p4_s6$Patient <- "Patient4"
+p4_s7$Patient <- "Patient4"
+p4_s8$Patient <- "Patient4"
+p4_s9$Patient <- "Patient4"
+p4_s1$sample_name <- "p4_s1"
+p4_s2$sample_name <- "p4_s2"
+p4_s3$sample_name <- "p4_s3"
+p4_s4$sample_name <- "p4_s4"
+p4_s5$sample_name <- "p4_s5"
+p4_s6$sample_name <- "p4_s6"
+p4_s7$sample_name <- "p4_s7"
+p4_s8$sample_name <- "p4_s8"
+p4_s9$sample_name <- "p4_s9"
+p4_s1$CAR <- "FC"
+p4_s2$CAR <- "Non-CART"
+p4_s3$CAR <- "Non-CART"
+p4_s4$CAR <- "Non-CART"
+p4_s5$CAR <- "CART"
+p4_s6$CAR <- "CART"
+p4_s7$CAR <- "CART"
+p4_s8$CAR <- "Non-CART"
+p4_s9$CAR <- "CART"
+p4_s1$TIME <- "FCb"
+p4_s2$TIME <- "CRSb"
+p4_s3$TIME <- "1stCRSp"
+p4_s4$TIME <- "CRSr"
+p4_s5$TIME <- "CRSb"
+p4_s6$TIME <- "1stCRSp"
+p4_s7$TIME <- "CRSr"
+p4_s8$TIME <- "2ndCRSp"
+p4_s9$TIME <- "2ndCRSp"
+```
+
+### Merge
+```{r}
+# Create a list of Seurat objects
+seurat_list <- list(p1_s1, p1_s2, p1_s3, p1_s4, p1_s5, p1_s6, p1_s7,
+                    p2_s1, p2_s2, p2_s3, p2_s4, p2_s5, p2_s6, p2_s7,
+                    p3_s1, p3_s2, p3_s3, p3_s4, p3_s5, p3_s6, p3_s7, p3_s8,
+                    p4_s1, p4_s2, p4_s3, p4_s4, p4_s5, p4_s6, p4_s7, p4_s8, p4_s9)
+# 合并数据集
+data <- merge(p1_s1, y = c(p1_s2, p1_s3, p1_s4, p1_s5, p1_s6, p1_s7,
+                    p2_s1, p2_s2, p2_s3, p2_s4, p2_s5, p2_s6, p2_s7,
+                    p3_s1, p3_s2, p3_s3, p3_s4, p3_s5, p3_s6, p3_s7, p3_s8,
+                    p4_s1, p4_s2, p4_s3, p4_s4, p4_s5, p4_s6, p4_s7, p4_s8, p4_s9),
+              add.cell.ids = c('p1_s1', 'p1_s2', 'p1_s3', 'p1_s4', 'p1_s5',  'p1_s6', 'p1_s7',
+                               'p2_s1', 'p2_s2', 'p2_s3', 'p2_s4', 'p2_s5', 'p2_s6', 'p2_s7',
+                               'p3_s1', 'p3_s2', 'p3_s3', 'p3_s4', 'p3_s5',  'p3_s6', 'p3_s7', 'p3_s8',
+                               'p4_s1', 'p4_s2', 'p4_s3', 'p4_s4', 'p4_s5', 'p4_s6', 'p4_s7', 'p4_s8', 'p4_s9'))
+
+# 移除原始数据集
+rm(p1_s1, p1_s2, p1_s3, p1_s4, p1_s5, p1_s6, p1_s7,
+                    p2_s1, p2_s2, p2_s3, p2_s4, p2_s5, p2_s6, p2_s7,
+                    p3_s1, p3_s2, p3_s3, p3_s4, p3_s5, p3_s6, p3_s7, p3_s8,
+                    p4_s1, p4_s2, p4_s3, p4_s4, p4_s5, p4_s6, p4_s7, p4_s8, p4_s9)
+
+# 保存合并后的结果为RDS文件
+setwd("D:/OneDrive - International Campus, Zhejiang University/Projects/CRS/Data")
+saveRDS(data, file = "CRS_data_4P.rds")
+```
+### Preprocess
+```{r}
+data[["percent.mt"]] <- PercentageFeatureSet(data, pattern = "^MT-|^mt-")
+VlnPlot(data, features = c("nFeature_RNA", "nCount_RNA","percent.mt"), ncol = 2)
+data <- NormalizeData(
+  data, normalization.method = "LogNormalize", scale.factor = 10000)
+plot1 <- FeatureScatter(data, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(data, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+```
+
+```{r}
+data <- subset(data, subset = nFeature_RNA > 200 & nFeature_RNA < 5000 & percent.mt < 20)
+data <- FindVariableFeatures(data, selection.method = "vst", nfeatures = 2000)
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(data), 10)
+# plot variable features with and without labels
+plot1 =VariableFeaturePlot(data)
+LabelPoints(plot = plot1, points = top10, repel = TRUE)
+data <- ScaleData(data)
+data <- RunPCA(data, features = VariableFeatures(object = data),
+                verbose = FALSE)
+options(repr.plot.height = 5, repr.plot.width = 12)
+DimPlot(object = data, reduction = "pca", 
+        pt.size = .1, group.by = "TIME")
+VlnPlot(object = data, features = "PC_1", 
+        group.by = "TIME", pt.size = .1)
+DimHeatmap(data,dims = 1:15, cells = 500, balanced = TRUE)
+
+# saveRDS(data, file = "P4_P2_normolized.rds")
+```
+
+### Harmony
+```{r}
+library(Rcpp)
+library(harmony)
+
+data <- data %>% RunHarmony("sample_name",plot_convergence = TRUE,lambda = 10)
+harmony_embeddings <- Embeddings(data, 'harmony')
+options(repr.plot.height = 5, repr.plot.width = 12)
+DimPlot(object = data, reduction = "harmony", 
+        pt.size = .1, group.by = "sample_name")
+VlnPlot(object = data, features = "harmony_1", 
+        group.by = "sample_name", pt.size = .1)
+
+top10 <- head(VariableFeatures(data), 10)
+plot1 = VariableFeaturePlot(data)
+LabelPoints(plot = plot1, points = top10, repel = TRUE)
+DimPlot(data, reduction = "harmony")
+DimHeatmap(data,dims = 1:15, cells = 500, balanced = TRUE)
+
+ElbowPlot(data)
+
+saveRDS(data,"CRS_data_4P_harmony.rds")
+```
+### UMAP
+```{r}
+data <- readRDS("CRS_data_4P_harmony.rds")
+UMAP <- data %>% 
+  RunUMAP(reduction = "pca", dims = 1:16) %>% 
+  FindNeighbors(reduction = "pca", dims = 1:16) %>% 
+  FindClusters(resolution =0.8) %>% 
+  identity()
+
+DimPlot(UMAP, reduction = "umap", label = TRUE, raster=FALSE)
+saveRDS(UMAP,"CRS_data_4P_umap_4.rds")
+```
+
+```{r}
+DimPlot(UMAP, reduction = "umap", group.by = "Patient",repel = TRUE, raster=FALSE)
+DimPlot(UMAP, reduction = "umap", group.by = "CAR",repel = TRUE, raster=FALSE)
+DimPlot(UMAP, reduction = "umap", group.by = "sample_name",repel = TRUE, raster=FALSE)
+DimPlot(UMAP, reduction = "umap", group.by = "TIME",repel = TRUE, raster=FALSE)
+
+DimPlot(UMAP, reduction = "umap", split.by = "Patient", 
+        group.by = "TIME",repel = TRUE,ncol = 2,pt.size = 0.5, raster=FALSE)
+```
+
+```{r}
+DimPlot(UMAP, reduction = "umap", split.by = "Patient", 
+        group.by = "CAR",repel = TRUE,ncol = 2,pt.size = 0.5)
+
+```
+### Marker
+```{r}
+data <- readRDS("CRS_data_4P_umap.rds")
+DotPlot(data, features = c("CD3E","CD3D",#MAKE SURE T
+                            "PCNA","MKI67",#CYCLING T
+                            "CD4","IL7R","TCF7",#CD4 T
+                            "CD8B","CD8A","GZMH",'PRF1','CCL5',#CD8T
+                            'GNLY','GZMK','NKG7',#NK CELL
+                            "TIGIT",'FOXP3','CTLA4',#TREG
+                            "MS4A7","FCGR3A","C1QA","LST1",#NON-CLASSICAL MONO
+                            "CD14","LYZ","S100A8","S100A9",#CLASSICAL MONO
+                            "IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D',#PLASMA/TUMOR
+                            "PPBP","PF4",'GP9',#PLATELET
+                            "HBD","CA1",'HBB',#ERYTHROID PROGENITOR
+                            "CD1C","CLEC10A",'FCER1A'#DENDRITE CELL
+                            ))+RotatedAxis()
+
+# 绘制UMAP降维图
+DimPlot(data, reduction = "umap", label = TRUE, raster=FALSE)
+```
+
+### Annonation
+```{r}
+data <- readRDS("CRS_data_4P_umap_2.rds")
+options(future.globals.maxSize= 8912896000)
+markers = FindAllMarkers(data)
+```
+
+```{r}
+save(markers,file="markers.Rda")
+```
+
+```{r}
+cluster0 = subset(markers,cluster == "0")
+cluster1 = subset(markers,cluster == "1")
+cluster2 = subset(markers,cluster == "2")
+cluster3 = subset(markers,cluster == "3")
+cluster4 = subset(markers,cluster == "4")
+cluster5 = subset(markers,cluster == "5")
+cluster6 = subset(markers,cluster == "6")
+cluster7 = subset(markers,cluster == "7")
+cluster8 = subset(markers,cluster == "8")
+cluster9 = subset(markers,cluster == "9")
+cluster10= subset(markers,cluster == "10")
+cluster11= subset(markers,cluster == "11")
+cluster12= subset(markers,cluster == "12")
+cluster13= subset(markers,cluster == "13")
+cluster14= subset(markers,cluster == "14")
+cluster15= subset(markers,cluster == "15")
+cluster16= subset(markers,cluster == "16")
+cluster17= subset(markers,cluster == "17")
+cluster18= subset(markers,cluster == "18")
+cluster19= subset(markers,cluster == "19")
+cluster20= subset(markers,cluster == "20")
+cluster21= subset(markers,cluster == "21")
+cluster22= subset(markers,cluster == "22")
+cluster23= subset(markers,cluster == "23")
+cluster24= subset(markers,cluster == "24")
+cluster25= subset(markers,cluster == "25")
+cluster26= subset(markers,cluster == "26")
+cluster27= subset(markers,cluster == "27")
+cluster28= subset(markers,cluster == "28")
+cluster29= subset(markers,cluster == "29")
+cluster30= subset(markers,cluster == "30")
+cluster31= subset(markers,cluster == "31")
+```
+
+```{r}
+#CYCLING T
+VlnPlot(data, features = c("STMN1","TUBA1B","HIST1H4C","PCNA","MKI67","TOP2A"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("STMN1","TUBA1B","HIST1H4C","PCNA","MKI67","TOP2A"), raster=FALSE)
+
+#CD4 T CLUSTER 2
+VlnPlot(data, features = c("CD4","IL7R","TCF7"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(pbmc3, features = c("CD4","IL7R","TCF7"))
+
+#CD8 T CLUSTER 0
+VlnPlot(data, features = c("CD8B","GZMH","CD8A",'CCL5','GZMK'),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+#NK
+VlnPlot(data, features = c("GNLY","NKG7","CTSW"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c('GNLY','NCAM1'))
+```
+
+```{r}
+#B
+VlnPlot(data, features = c("CD19","CD79A","MS4A1"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("CD19","CD79A","MS4A1"))
+```
+
+```{r}
+#Treg
+VlnPlot(data, features = c("FOXP3","CTLA4","PD1"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+#CD14 MONO CLUSTER 3
+VlnPlot(data, features = c("CD14","LYZ","S100A8","S100A9"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data,features = c("CD14","LYZ","S100A8","S100A9"))
+```
+
+```{r}
+#CD16 MONO CLUSTER 6
+VlnPlot(data, features = c("FCGR3A","CX3CR1","FCER1G"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("FCGR3A","CX3CR1","FCER1G"))
+```
+
+```{r}
+#DC
+VlnPlot(data, features = c("CD1C","CLEC10A"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+#ERYTHROID PROGENITOR CELL CLUSTER 12
+VlnPlot(data, features = c("HBD","CA1"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("HBD","CA1"))
+```
+
+```{r}
+#PLATELET CLUSTER 13
+VlnPlot(data, features = c("PPBP","PF4"),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("PPBP","PF4"))
+```
+
+```{r}
+#PLASMA/TUMOR CLUSTER 14
+VlnPlot(data, features = c("IGHG1","IGHV1-69D","SDC1",'TNFRSF17','GPRC5D'),
+        slot = "counts", log = TRUE, group.by = "seurat_clusters", ncol = 1)
+FeaturePlot(data, features = c("IGHG1","IGHV1-69D","SDC1",'TNFRSF17','GPRC5D'))
+```
+
+```{R}
+DotPlot(data, features = c( "GNLY","NKG7","CTSW",#NK CELL
+                            "CD19","CD79A","MS4A1", # B CELL
+                            "CD14","LYZ","S100A8","S100A9", # CD14 CLASSICAL MONO
+                            "FCGR3A","CX3CR1","FCER1G", # CD16 CLASSICAL MONO
+                            "IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D',#PLASMA/TUMOR
+                            "PPBP","PF4",#PLATELET
+                            "HBD","CA1",'HBB',#ERYTHROID PROGENITOR
+                            "CD1C","CLEC10A",'FCER1A', "HBD","CA1" #DENDRITE CELL
+                            ))+RotatedAxis()
+```
+
+```{r}
+# CYCLING T
+DotPlot(data, features = c("CD3E","CD3D","STMN1","TUBA1B","HIST1H4C","PCNA","MKI67","TOP2A"))+RotatedAxis()
+# CD4 T
+DotPlot(data, features = c("CD3E","CD3D","CD4","IL7R","TCF7"))+RotatedAxis()
+# CD8 T
+DotPlot(data, features = c("CD3E","CD3D","CD8B","CD8A","GZMH",'PRF1','CCL5','GZMK'))+RotatedAxis()
+#TREG
+DotPlot(data, features = c("CD3E","CD3D", "TIGIT",'FOXP3','CTLA4'))+RotatedAxis()
+# B CELL
+DotPlot(data, features = c("CD19","CD79A","MS4A1","IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D'))+RotatedAxis()
+#ERYTHROID PROGENITOR
+DotPlot(data, features = c("HBD","CA1",'HBB'))+RotatedAxis()
+# CD14 CLASSICAL MONO
+DotPlot(data, features = c("CD14","LYZ","S100A8","S100A9"))+RotatedAxis()
+#DENDRITE CELL
+DotPlot(data, features = c("CD1C","CLEC10A",'FCER1A', "HBD","CA1"))+RotatedAxis()
+# CD16 CLASSICAL MONO
+DotPlot(data, features = c("CD14", "FCGR3A","CX3CR1","FCER1G"))+RotatedAxis()
+# Non-CLASSICAL MONO
+DotPlot(data, features = c("MS4A7","FCGR3A","C1QA","LST1"))+RotatedAxis()
+
+```
+
+```{r}
+data <- readRDS("CRS_data_4P_umap_2.rds")
+data <- RenameIdents(object = data, "0" = "CD8 T","1" = "CD4 T", "2" = "CD8 T",
+                     "3" = "CD8 T", "4" = "CD14 CLASSICAL MONO",'5'='CYCLING T', '6'='NK',
+                     '7'='CD8 T', '8'='CD8 T','9'='CD8 T', 
+                     '10'='CYCLING T',
+                     '11'='CYCLING T',
+                     '12'='TREG','13'='CD8 T',
+                     '14'='CD14 CLASSICAL MONO','15'='CYCLING T','16'='CD8 T',
+                     '17'='CYCLING T',
+                     '18'='CD8 T',
+                     '19'='CYCLING T',
+                     '20'='CD8 T',
+                     '21'='CD8 T', 
+                     '22'="PLASMA/TUMOR", '23' = "CD8 T", 
+                     '24'="CD14 CLASSICAL MONO", 
+                     '25'="PLASMA/TUMOR", '26'="CD8 T", 
+                     '27'=" PLATELET", 
+                     '28'="B", 
+                     '29'="ERYTHROID PROGENITOR", 
+                     '30'="CD8 T", 
+                     '31'="DENDRITE")
+
+DimPlot(data, reduction = "umap", label = TRUE, raster=FALSE)
+```
+
+```{r}
+DotPlot(data, features = c("CD3E","CD3D",#MAKE SURE T
+                            "PCNA","MKI67",#CYCLING T
+                            "CD4","IL7R","TCF7",#CD4 T
+                            "CD8B","CD8A","GZMH",'PRF1','CCL5',#CD8T
+                            'GNLY','GZMK','NKG7',#NK CELL
+                            "TIGIT",'FOXP3','CTLA4',#TREG
+                            "MS4A7","FCGR3A","C1QA","LST1",#NON-CLASSICAL MONO
+                            "CD14","LYZ","S100A8","S100A9",#CLASSICAL MONO
+                            "IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D',#PLASMA/TUMOR
+                            "PPBP","PF4",'GP9',#PLATELET
+                            "HBD","CA1",'HBB',#ERYTHROID PROGENITOR
+                            "CD1C","CLEC10A",'FCER1A'#DENDRITE CELL
+                            ))+RotatedAxis()
+
+DoHeatmap(data,features = c("CD3E","CD3D",#MAKE SURE T
+                             "PCNA","MKI67",#CYCLING T
+                             "CD4","IL7R","TCF7",#CD4 T
+                             "CD8B","CD8A","GZMH",'PRF1','CCL5',#CD8T
+                             'GNLY','GZMK','NKG7',#NK CELL
+                             "TIGIT",'FOXP3','CTLA4',#TREG
+                             "MS4A7","FCGR3A","C1QA","LST1",#NON-CLASSICAL MONO
+                             "CD14","LYZ","S100A8","S100A9",#CLASSICAL MONO
+                             "IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D',#PLASMA/TUMOR
+                             "PPBP","PF4",'GP9',#PLATELET
+                             "HBD","CA1",'HBB',#ERYTHROID PROGENITOR 
+                             "CD1C","CLEC10A",'FCER1A'#DENDRITE CELL
+))
+DimPlot(data, reduction = "umap", label = TRUE)
+```
+
+```{r}
+saveRDS(UMAP,"P4_P2_umap_A1.rds")
+```
+
+### Annonation-SingleR
+```{r}
+# Reference-based analysis of lung single-cell sequencing reveals a transitional profibrotic macrophage. Nature Immunology (2019)
+UMAP <- readRDS("CRS_data_4P_umap_2.rds")
+
+# 加载SingleR包
+library(Seurat)
+library(SeuratObject)
+library(tidyverse)
+library(harmony)
+library(SCENIC)
+library(ggplot2)
+library(SingleR)
+library(celldex)
+# 使用HumanPrimaryCellAtlasData()函数加载参考数据集
+cg<-HumanPrimaryCellAtlasData()#选取我们要使用的免疫细胞参考数据集
+assay_for_SingleR <- GetAssayData(UMAP, slot="data")#取出样本中的表达序列
+predictions <- SingleR(test=assay_for_SingleR, 
+                       ref=cg, labels=cg$label.main)
+table(predictions$labels)#看看都注释到了哪些细胞
+
+cellType=data.frame(seurat=UMAP@meta.data$seurat_clusters,
+                    predict=predictions$labels)#得到seurat中编号与预测标签之间的关系
+sort(table(cellType[,1]))
+
+lalala <- as.data.frame(table(cellType[,1:2]))
+finalmap <- lalala %>% group_by(seurat) %>% top_n(n = 1, wt = Freq)#找出每种seurat_cluster注释比例最高的对应类型
+finalmap <-finalmap[order(finalmap$seurat),]$predict#找到seurat中0：8的对应预测细胞类型
+print(finalmap)
+
+testname <- UMAP
+new.cluster.ids <- as.character(finalmap)
+names(new.cluster.ids) <- levels(testname)
+testname <- RenameIdents(testname, new.cluster.ids)
+
+DimPlot(testname, reduction = "umap", label = TRUE, raster=FALSE)
+
+saveRDS(testname,"CRS_data_4P_umap_3.rds")
+```
+
+### Annotation-ProjectTILs
+```{r}
+data <- readRDS("CRS_data_4P_umap.rds")
+library(ProjecTILs)
+ref <- readRDS("") # use human
+query.projected <- Run.ProjecTILs(data, ref=ref)
+
+DimPlot(data, reduction = "umap", label = TRUE, raster=FALSE)
+plot.projection(ref, linesize = 0.5, pointsize = 0.5)
+plot.projection(ref, query.projected, linesize = 0.5, pointsize = 0.5)
+saveRDS(query.projected,"ProjectTILs_1.rds")
+```
+
+
+### Differential Expression Analysis
+```{r}
+data$celltype.group <- paste(data$celltype, data$TIME, sep = "_")
+data$celltype <- Idents(data)
+Idents(data) <- "celltype.group"
+```
+
+```{r}
+mydeg <- FindMarkers(data,ident.1 = 'VSMC_AS1',ident.2 = 'VSMC_C57', verbose = FALSE, test.use = 'wilcox',min.pct = 0.1)
+head(mydeg)
+```
+
+
+### New analysis
+```{r}
+# scRNA <- readRDS("CRS_data_4P_umap.rds")
+scRNA <- RenameIdents(object = scRNA, "0" = "CD8 T","1" = "CD4 T", "2" = "CD8 T",
+                     "3" = "CD8 T", "4" = "CD14 CLASSICAL MONO",'5'='CYCLING T', '6'='NK',
+                     '7'='CD8 T', '8'='CD8 T','9'='CD8 T', 
+                     '10'='CYCLING T',
+                     '11'='CYCLING T',
+                     '12'='TREG','13'='CD8 T',
+                     '14'='CD14 CLASSICAL MONO','15'='CYCLING T','16'='CD8 T',
+                     '17'='CYCLING T',
+                     '18'='CD8 T',
+                     '19'='CYCLING T',
+                     '20'='CD8 T',
+                     '21'='CD8 T', 
+                     '22'="PLASMA/TUMOR", '23' = "CD8 T", 
+                     '24'="CD14 CLASSICAL MONO", 
+                     '25'="PLASMA/TUMOR", '26'="CD8 T", 
+                     '27'=" PLATELET", 
+                     '28'="B", 
+                     '29'="ERYTHROID PROGENITOR", 
+                     '30'="CD8 T", 
+                     '31'="DENDRITE")
+
+# DimPlot(scRNA, reduction = "umap", label = TRUE, raster=FALSE)
+```
+
+```{R}
+DotPlot(scRNA, features = c( "CD3D","CD4", "CD8B", 
+                            "GNLY","NKG7","CTSW",#NK CELL
+                            "CD19","CD79A","MS4A1", # B CELL
+                            "CD14","LYZ","S100A8","S100A9", # CD14 CLASSICAL MONO
+                            "FCGR3A","CX3CR1","FCER1G", # CD16 CLASSICAL MONO
+                            "IGHG1","IGHV1-69D","SDC1",'MYC','GPRC5D',#PLASMA/TUMOR
+                            "PPBP","PF4",#PLATELET
+                            "HBD","CA1",'HBB',#ERYTHROID PROGENITOR
+                            "CD1C","CLEC10A",'FCER1A' #DENDRITE CELL
+                            ))+RotatedAxis()
+```
+
+```{R}
+scRNA$CellType <- Idents(scRNA)
+cell_type_values <- unique(scRNA@meta.data$CellType)
+# dir.create("DEG_results")
+
+for (cell_type in cell_type_values) {
+    cell_selection <- subset(scRNA, cells = colnames(scRNA)[scRNA$CellType == cell_type])
+    Idents(cell_selection) <- cell_selection$TIME
+    DGE_cell_selection <- FindAllMarkers(cell_selection, logfc.threshold = 0.25)
+    result_excel <- createWorkbook()
+    clusters <- unique(DGE_cell_selection$cluster)
+  for (cluster_val in clusters) {
+    subset_data <- DGE_cell_selection[DGE_cell_selection$cluster == cluster_val, ]
+    addWorksheet(result_excel, sheetName = as.character(cluster_val))
+    writeData(result_excel, sheet = as.character(cluster_val), x = subset_data)
+  }
+    result_filename <- paste0("DEG_results/", cell_type, "_CRS_DGE_results.xlsx")
+    saveWorkbook(result_excel, result_filename, overwrite = TRUE)
+}
+```
+
+```{R}
+# 两两比较
+result_excel <- createWorkbook()
+for (cell_type in cell_type_values) {
+    cell_selection <- subset(scRNA, cells = colnames(scRNA)[scRNA$CellType == cell_type])
+    Idents(cell_selection) <- cell_selection$method
+    DGE_cell_selection <- FindMarkers(cell_selection, ident.1 = "PD1-19bbz", ident.2 = "LV-19bbz_PD1-KO" , logfc.threshold = 0.25)
+    addWorksheet(result_excel, sheetName = cell_type)
+    writeData(result_excel, sheet = cell_type, x = DGE_cell_selection, rowNames = TRUE)
+}
+result_filename <- paste0("DEG_results/", "DEGs", "_LV-ET_DGE_results.xlsx")
+saveWorkbook(result_excel, result_filename, overwrite = TRUE)
+```
+
+```{r}
+features <- c("GZMB", "GNLY", "NKG7", "IL32","CD59",
+    "CD27", "SELL", "IL16")
+colors <- c("#0072B2","#009E73","#D55E00","#CC79A7","#F0E442",
+    "#56B4E9","#E69F00","#00ADA9","#D0E429","#ED008C","#68217A")
+p1 <- VlnPlot(scRNA, features, stack = TRUE, split.by = 'method',
+    cols = colors, flip = TRUE) +
+    theme(legend.position = "bottom")
+p1
+```
+
+
+
+
+
+
+
+
+
+
+
