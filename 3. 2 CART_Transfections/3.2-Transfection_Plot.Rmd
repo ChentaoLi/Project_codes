@@ -1,0 +1,44 @@
+---
+title: "Plot the results"
+author: "Chentao LI"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# DEGs between LV2 and ET
+## Multi-volcano
+```{r}
+source("D:/OneDrive - International Campus, Zhejiang University/桌面/Code_collections/Visualize/Multi-group volcano_v2.R")
+data <- readAllSheets("DEG_results/DEGs_LV-ET_DGE_results.xlsx")
+data_plot <- list()
+for (i in seq_along(data$data_frames)) {
+  data_frame <- data$data_frames[[i]]
+  sheet <- data$sheet_names[[i]]
+  data_frame$log2FoldChange <- data_frame$avg_log2FC
+  data_frame$Gene <- data_frame$X1
+  data_frame$change <- ifelse(data_frame$log2FoldChange > 0.5 & data_frame$p_val < 0.01, "Up",
+                              ifelse(data_frame$log2FoldChange < -0.5 & data_frame$p_val < 0.01, "Down", "No"))
+  data_plot[[sheet]] <- data_frame
+}
+data_plot <- list(data_frames = data_plot, sheet_names = data$sheet_names)
+
+createMultiVolcanoPlot(data_plot, "results/MultiVolcanoPlo.pdf")
+
+```
+
+## Vlnplot
+```{r}
+scRNA <- readRDS("CART_Transfections_Patient_GSVA.rds")
+scRNA$CellType <- Idents(scRNA)
+features <- c("GZMB", "GNLY", "NKG7", "IL32","CD59",
+    "CD27", "SELL", "IL16")
+colors <- c("#0072B2","#009E73","#D55E00","#CC79A7","#F0E442",
+    "#56B4E9","#E69F00","#00ADA9","#D0E429","#ED008C","#68217A")
+p1 <- VlnPlot(scRNA, features, stack = TRUE, split.by = 'method',
+    cols = colors, flip = TRUE) +
+    theme(legend.position = "bottom")
+p1
+```
+
+
+

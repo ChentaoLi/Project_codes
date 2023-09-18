@@ -483,16 +483,7 @@ result_filename <- paste0("DEG_results/", "DEGs", "_LV-ET_DGE_results.xlsx")
 saveWorkbook(result_excel, result_filename, overwrite = TRUE)
 ```
 
-```{r}
-features <- c("GZMB", "GNLY", "NKG7", "IL32","CD59",
-    "CD27", "SELL", "IL16")
-colors <- c("#0072B2","#009E73","#D55E00","#CC79A7","#F0E442",
-    "#56B4E9","#E69F00","#00ADA9","#D0E429","#ED008C","#68217A")
-p1 <- VlnPlot(scRNA, features, stack = TRUE, split.by = 'method',
-    cols = colors, flip = TRUE) +
-    theme(legend.position = "bottom")
-p1
-```
+
 
 
 
